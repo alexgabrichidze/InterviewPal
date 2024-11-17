@@ -7,7 +7,7 @@ import { Toaster, toast } from 'react-hot-toast';
 export default function Resume() {
     const [jobDescription, setJobDescription] = useState<string>('');
     const [resumeFile, setResumeFile] = useState<File | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);   
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const router = useRouter(); // Initialize the router
 
@@ -21,18 +21,35 @@ export default function Resume() {
         setIsSubmitting(true);
 
         try {
-            await new Promise((resolve) => setTimeout(resolve, 2000)); 
-
-            toast.success('Form submitted successfully!');
-            setResumeFile(null);
-            setJobDescription('');
-
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
+            if (!resumeFile) {
+                toast.error('Please upload a resume file.');
+                setIsSubmitting(false);
+                return;
             }
 
-            // Redirect to the /answer route
-            router.push('/answer');
+            const formData = new FormData();
+            formData.append('file', resumeFile);
+            formData.append('jobDescription', jobDescription);
+
+            const response = await fetch('/api/resume-upload-backend', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                toast.success('Form submitted successfully!');
+                console.log('Response:', data);
+                setResumeFile(null);
+                setJobDescription('');
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                // Redirect to the /answer route
+                router.push('/answer');
+            } else {
+                toast.error('Failed to submit the form. Please try again.');
+            }
         } catch (error) {
             toast.error('Failed to submit the form. Please try again.');
         } finally {
