@@ -21,7 +21,7 @@ export default function Resume() {
         setIsSubmitting(true);
 
         try {
-            await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate async submission
+            await new Promise((resolve) => setTimeout(resolve, 2000)); 
 
             toast.success('Form submitted successfully!');
             setResumeFile(null);
